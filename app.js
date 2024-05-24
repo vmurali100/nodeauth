@@ -3,12 +3,15 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var cors = require('cors')
+var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+// Set up CORS middleware before defining routes
+app.use(cors({ origin: '*' })); // Allow all origins
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,25 +23,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Define routes after CORS middleware
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-app.options('*', cors());
-// catch 404 and forward to error handler
-const setCorsHeaders = (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Allow requests from any origin
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified HTTP methods
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow specified headers
-  res.setHeader('Access-Control-Allow-Credentials', true); // Allow credentials (cookies, authorization headers, etc.)
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-  } else {
-    next(); // Continue to the next middleware/route handler
-  }
-};
-app.use(setCorsHeaders);
 
 app.use(function(req, res, next) {
   next(createError(404));
